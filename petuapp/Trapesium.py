@@ -1,115 +1,187 @@
-from kivy.app import App
+from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 from kivy.uix.image import Image
-from kivy.graphics import Color, Rectangle
-from kivy.core.image import Image as CoreImage
+from kivy.graphics import Rectangle
+from kivy.metrics import sp, dp
 
-class ColoredBoxLayout(BoxLayout):
+
+class TrapesiumScreen(Screen):
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        with self.canvas.before:
-            self.bg_texture = CoreImage("trapesium2.png").texture
-            self.rect = Rectangle(texture=self.bg_texture, size=self.size, pos=self.pos)
-            
-        self.bind(size=self.update_rect, pos=self.update_rect)
 
-    def update_rect(self, *args):
-        self.rect.size = self.size
-        self.rect.pos = self.pos
+        # =====================
+        # ROOT
+        # =====================
+        root = FloatLayout()
 
-class HitungTrapesiumApp(App):
-    def build(self):
-        self.layout = ColoredBoxLayout(
+        # =====================
+        # BACKGROUND
+        # =====================
+        with root.canvas.before:
+            self.bg = Rectangle(
+                source="bg trapesium.png",
+                pos=root.pos,
+                size=root.size
+            )
+
+        root.bind(size=self.update_bg, pos=self.update_bg)
+
+        # =====================
+        # LAYOUT UTAMA
+        # =====================
+        layout = BoxLayout(
             orientation="vertical",
-            padding=10,
-            spacing=10
-            )
-        
-        judul = Label(
-            text="TRAPESIUM",
-            size_hint=(1, None),
-            height=40,
-            color=(0,0,0,1),
-            font_size='20sp',
-            bold=True
+            padding=dp(20),
+            spacing=dp(15),
+            size_hint=(1, 1)
         )
-        self.layout.add_widget(judul)
-        
-        rumus = Label(
-            text="Rumus : L = ½ × (sisi atas + sisi bawah) × tinggi",
+
+        # =====================
+        # JUDUL
+        # =====================
+        layout.add_widget(Label(
+            text="HITUNG LUAS TRAPESIUM",
+            font_name="MondayTuesdayDemo.otf",
+            font_size=sp(30),
+            color=(0.953, 0.737, 0.180, 1),
+            size_hint_y=None,
+            height=dp(50)
+        ))
+
+        # =====================
+        # GAMBAR
+        # =====================
+        layout.add_widget(Image(
+            source="trapesium.png",
             size_hint=(1, None),
-            height=30,
-            color=(0,0,0,1),
-            font_size='16sp'
-            )
-        self.layout.add_widget(rumus)
+            height=dp(180),
+            allow_stretch=True,
+            keep_ratio=True
+        ))
 
-        self.input_sisi_atas = TextInput(
-            hint_text="Masukkan sisi atas trapesium",
+        # =====================
+        # RUMUS
+        # =====================
+        layout.add_widget(Label(
+            text="Rumus: ½ × (a + b) × t",
+            font_name= "Blustrue.otf",
+            font_size=sp(18),
+            color=(0, 0, 0, 1),
+            size_hint_y=None,
+            height=dp(30)
+        ))
+
+        # =====================
+        # INPUT (STYLE KAMU)
+        # =====================
+        self.inputSisiAtas = TextInput(
+            hint_text="Sisi atas (a)",
             multiline=False,
             input_filter="float",
-            size=(225,50),
-            size_hint=(None,None),
-            pos_hint=({"center_x": 0.5})
-            )
-        
-        self.layout.add_widget(self.input_sisi_atas)
+            size_hint=(None, None),
+            size=(dp(150), dp(45)),
+            pos_hint={"center_x": 0.5}
+        )
+        layout.add_widget(self.inputSisiAtas)
 
-        self.input_sisi_bawah = TextInput(
-            hint_text="Masukkan sisi bawah trapesium",
+        self.inputSisiBawah = TextInput(
+            hint_text="Sisi bawah (b)",
             multiline=False,
             input_filter="float",
-            size=(225,50),
-            size_hint=(None,None),
-            pos_hint=({"center_x": 0.5})
-            )
-        
-        self.layout.add_widget(self.input_sisi_bawah)
+            size_hint=(None, None),
+            size=(dp(150), dp(45)),
+            pos_hint={"center_x": 0.5}
+        )
+        layout.add_widget(self.inputSisiBawah)
 
-        self.input_tinggi = TextInput(
-            hint_text="Masukkan tinggi trapesium",
+        self.inputTinggi = TextInput(
+            hint_text="Tinggi (t)",
             multiline=False,
             input_filter="float",
-            size=(225,50),
-            size_hint=(None,None),
-            pos_hint=({"center_x": 0.5})
-            )
+            size_hint=(None, None),
+            size=(dp(150), dp(45)),
+            pos_hint={"center_x": 0.5}
+        )
+        layout.add_widget(self.inputTinggi)
 
-        self.layout.add_widget(self.input_tinggi)
+        # =====================
+        # TOMBOL HITUNG
+        # =====================
+        btn_hitung = Button(
+            text="Hitung Luas",
+            size_hint=(None, None),
+            size=(dp(120), dp(50)),
+            font_name = "Voyage Rush.otf",
+            pos_hint={"center_x": 0.5}
+        )
+        btn_hitung.bind(on_press=self.hitung_luas)
+        layout.add_widget(btn_hitung)
 
-        tombol_hitung = Button(text="Hitung Luas", 
-                               size=(225,50),
-                               size_hint=(None,None),
-                               pos_hint={"center_x": 0.5}
-                               )
-        
-        tombol_hitung.bind(on_press=self.hitung_luas)
-        self.layout.add_widget(tombol_hitung)
+        # =====================
+        # LABEL HASIL (ANTI TUMPANG TINDIH)
+        # =====================
+        self.label_hasil = Label(
+            text="Luas akan muncul di sini",
+            font_size=sp(18),
+            color=(0, 0, 0, 1),
+            size_hint_y=None,
+            height=dp(40),
+            halign="center",
+            valign="middle"
+        )
+        self.label_hasil.bind(
+            size=lambda *x: setattr(self.label_hasil, "text_size", self.label_hasil.size)
+        )
+        layout.add_widget(self.label_hasil)
 
-        self.label_hasil = TextInput(
-            hint_text="Luas akan muncul si sini",
-            multiline=False,
-            input_filter="float",
-            size=(225,50),
-            size_hint=(None,None),
-            pos_hint=({"center_x": 0.5})
-            )
-        self.layout.add_widget(self.label_hasil)
+        # =====================
+        # MASUKKAN KE ROOT
+        # =====================
+        root.add_widget(layout)
 
-        return self.layout
+        # =====================
+        # TOMBOL BACK (KANAN BAWAH)
+        # =====================
+        btn_back = Button(
+            text="BACK",
+            color=(0, 0, 0, 1),
+            font_size=sp(18),
+            font_name = "Voyage Rush.otf",
+            size_hint=(None, None),
+            size=(dp(120), dp(50)),
+            background_color= (1, 1, 1, 1),
+            background_down="",
+            background_normal="",
+            pos_hint={"right": 0.95, "y": 0.05}
+        )
+        btn_back.bind(on_release=lambda x: setattr(self.manager, "current", "menu"))
+        root.add_widget(btn_back)
 
+        self.add_widget(root)
+
+    # =====================
+    # UPDATE BG
+    # =====================
+    def update_bg(self, instance, value):
+        self.bg.pos = instance.pos
+        self.bg.size = instance.size
+
+    # =====================
+    # HITUNG LUAS
+    # =====================
     def hitung_luas(self, instance):
         try:
-            sisi_atas = float(self.input_sisi_atas.text)
-            sisi_bawah = float(self.input_sisi_bawah.text)
-            tinggi = float(self.input_tinggi.text)
-            luas = 0.5 * (sisi_atas + sisi_bawah) * tinggi
-            self.label_hasil.text = f"Luas Trapesium: {luas}"
-        except:
-            self.label_hasil.text = "Input harus berupa angka!"
-
-if __name__ == "__main__":
-    HitungTrapesiumApp().run()
+            a = float(self.inputSisiAtas.text)
+            b = float(self.inputSisiBawah.text)
+            t = float(self.inputTinggi.text)
+            luas = 0.5 * (a + b) * t
+            self.label_hasil.text = f"Luas Trapesium: {luas:.2f}"
+            self.label_hasil.color = (0, 0, 0, 1)
+        except ValueError:
+            self.label_hasil.text = "Input harus angka!"
+            self.label_hasil.color = (1, 0, 0, 1)

@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 
-class SegitigaScreen(Screen):
+class BelahKetupatScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -22,7 +22,7 @@ class SegitigaScreen(Screen):
         # BACKGROUND
         with root.canvas.before:
             self.bg = Rectangle(
-                source="bg segitiga.png",
+                source="bg belahketupat.png",
                 pos=root.pos,
                 size=root.size
             )
@@ -39,7 +39,7 @@ class SegitigaScreen(Screen):
 
         # JUDUL
         layout.add_widget(Label(
-            text="HITUNG LUAS SEGITIGA",
+            text="HITUNG LUAS BELAH KETUPAT",
             font_name="MondayTuesdayDemo.otf",
             font_size=sp(30),
             color=(0.953, 0.737, 0.180, 1),
@@ -51,7 +51,7 @@ class SegitigaScreen(Screen):
 
         # GAMBAR
         layout.add_widget(Image(
-            source="segitiga.png",
+            source="belahketupat.png",
             height=dp(300),
             allow_stretch=True,
             keep_ratio=True
@@ -59,7 +59,7 @@ class SegitigaScreen(Screen):
 
         # RUMUS 
         layout.add_widget(Label(
-            text="Rumus: ½ × alas × tinggi",
+            text="Rumus: ½ × d1 × d2",
             font_name="Blustrue.otf",
             font_size=sp(15),
             color=(0, 0, 0, 1),
@@ -69,8 +69,8 @@ class SegitigaScreen(Screen):
         ))
 
         # INPUT
-        self.inputalas = TextInput(
-            hint_text="Alas",
+        self.inputd1 = TextInput(
+            hint_text="Diagonal 1 (d1)",
             font_name="AksaraKomik-Regular.otf",
             multiline=False,
             input_filter="float",
@@ -79,10 +79,10 @@ class SegitigaScreen(Screen):
             padding=(dp(10),dp(6)),
             pos_hint={"center_x": 0.5, "center_y": 0.5}
         )
-        layout.add_widget(self.inputalas)
+        layout.add_widget(self.inputd1)
 
-        self.inputtinggi = TextInput(
-            hint_text="Tinggi",
+        self.inputd2 = TextInput(
+            hint_text="Diagonal 2 (d2)",
             font_name="AksaraKomik-Regular.otf",
             multiline=False,
             input_filter="float",
@@ -91,8 +91,7 @@ class SegitigaScreen(Screen):
             padding=(dp(10),dp(6)),
             pos_hint={"center_x": 0.5, "center_y": 0.5}
         )
-        layout.add_widget(self.inputtinggi)
-
+        layout.add_widget(self.inputd2)
 
         # TOMBOL HITUNG
         btn_hitung = Button(
@@ -161,13 +160,13 @@ class SegitigaScreen(Screen):
     # HITUNG LUAS
     def hitung_luas(self, instance):
         try:
-            alas = float(self.inputalas.text)
-            tinggi = float(self.inputtinggi.text)
-            luas = 0.5 * alas * tinggi
-            self.label_hasil.text = f"Luas Segitiga: {luas:.2f}"
+            d1 = float(self.inputd1.text)
+            d2 = float(self.inputd2.text)
+            luas = 0.5 * d1 * d2
+            self.label_hasil.text = f"Luas Belah Ketupat: {luas:.2f}"
             self.label_hasil.color = (0, 0, 0, 1)
 
-            self.simpan_data(alas, tinggi, luas)
+            self.simpan_data(d1, d2, luas)
             
         except ValueError:
             self.label_hasil.text = "Input harus angka!"
@@ -175,14 +174,14 @@ class SegitigaScreen(Screen):
 
     # CLEAR
     def clear(self, instance):
-        self.inputalas.text = ""
-        self.inputtinggi.text = ""
+        self.inputd1.text = ""
+        self.inputd2.text = ""
         self.label_hasil.text = "Luas akan muncul di sini"
         self.label_hasil.color = (0, 0, 0, 1)
 
-    def simpan_data(self, alas, tinggi, luas):
+    def simpan_data(self, d1, d2, luas):
         waktu = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         with open("data_bangundatar.txt", "a", encoding="utf-8") as file:
             file.write(
-                f"{waktu} | alas={alas} | tinggi={tinggi} | luas={luas}\n"
+                f"{waktu} | d1={d1} | d2={d2} | luas={luas}\n"
             )
